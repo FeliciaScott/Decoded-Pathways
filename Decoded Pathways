@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decoded Pathways & Entry Blueprints</title>
+    <style>
+        :root {
+            --bg-base: #0b0f12;
+            --bg-surface: #141b1f;
+            --primary-olive: #3f6212;
+            --primary-light: #65a30d;
+            --accent-acid: #eab308;
+            --text-primary: #f8fafc;
+            --text-muted: #8796a5;
+            --border-grid: #222e35;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            padding: 3rem 1.5rem;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* Blueprint Terminal Header */
+        header {
+            border: 1px solid var(--border-grid);
+            background-color: var(--bg-surface);
+            padding: 2rem;
+            border-radius: 8px;
+            margin-bottom: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: "SYSTEM://PATHWAY_DECODER";
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: var(--primary-olive);
+            color: var(--accent-acid);
+            font-size: 0.7rem;
+            padding: 0.25rem 0.75rem;
+            font-weight: bold;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        header h1 span {
+            color: var(--accent-acid);
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        /* Sector Selector Module */
+        .selector-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .sector-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-grid);
+            border-radius: 6px;
+            padding: 1.25rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .sector-card:hover {
+            border-color: var(--primary-light);
+            background: rgba(101, 163, 13, 0.02);
+        }
+
+        .sector-card.active {
+            border-color: var(--accent-acid);
+            background: rgba(234, 179, 8, 0.03);
+            box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.05);
+        }
+
+        .sector-id {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .sector-card.active .sector-id {
+            color: var(--accent-acid);
+        }
+
+        .sector-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        /* The Main Dynamic Grid */
+        .blueprint-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .blueprint-grid {
+                grid-template-columns: 1fr;
+            }
+            .selector-strip {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Left Column: Timeline & Vector */
+        .vector-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-grid);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .vector-heading {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-grid);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-row {
+            margin-bottom: 1.25rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
+
+        .metric-value {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+
+        .metric-value.highlight {
+            color: var(--accent-acid);
+        }
+
+        /* Right Column: Decoded Execution Blocks */
+        .execution-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .block-node {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-grid);
+            border-radius: 8px;
+            padding: 1.75rem;
+        }
+
+        .node-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: rgba(234, 179, 8, 0.1);
+            color: var(--accent-acid);
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(234, 179, 8, 0.2);
+            display: inline-block;
+            margin-bottom: 0.75rem;
+        }
+
+        .node-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .node-body {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .node-list {
+            margin-top: 1rem;
+            list-style: none;
+        }
+
+        .node-list li {
+            position: relative;
+            padding-left: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .node-list li::before {
+            content: "➔";
+            position: absolute;
+            left: 0;
+            color: var(--primary-light);
+        }
+
+        /* System Logs/Footer note */
+        .sys-log {
+            margin-top: 4rem;
+            background: rgba(34, 46, 53, 0.2);
+            border: 1px dashed var(--border-grid);
+            padding: 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Entry Blueprints: <span>Decoded Pathways</span></h1>
+        <p>Once you possess documented case studies and proof of daily grit, traditional cold applications become obsolete. Use these vetted backchannel blueprints to circumvent gatekeepers and deploy your execution collateral exactly where it commands attention.</p>
+    </header>
+
+    <!-- Sector Controls -->
+    <div class="selector-strip">
+        <div class="sector-card active" id="btn-tech" onclick="loadBlueprint('tech')">
+            <span class="sector-id">ROUTE_01 //</span>
+            <span class="sector-title">Open Source & Tech Equity</span>
+        </div>
+        <div class="sector-card" id="btn-trades" onclick="loadBlueprint('trades')">
+            <span class="sector-id">ROUTE_02 //</span>
+            <span class="sector-title">Skilled Trades Apprenticeships</span>
+        </div>
+        <div class="sector-card" id="btn-academia" onclick="loadBlueprint('academia')">
+            <span class="sector-id">ROUTE_03 //</span>
+            <span class="sector-title">Research Labs & Deep Academia</span>
+        </div>
+    </div>
+
+    <!-- Interface Blueprint Core -->
+    <div class="blueprint-grid">
+        
+        <!-- Left: Vector Parameters -->
+        <div class="vector-panel">
+            <div class="vector-heading">Pathway Specs</div>
+            
+            <div class="metric-row">
+                <span class="metric-label">Target Destination</span>
+                <span class="metric-value" id="spec-destination">Mid-Tier Core Dev Teams</span>
+            </div>
+            
+            <div class="metric-row">
+                <span class="metric-label">Optimal Horizon</span>
+                <span class="metric-value highlight" id="spec-horizon">90 - 120 Days</span>
+            </div>
+
+            <div class="metric-row">
+                <span class="metric-label">Leverage Point</span>
+                <span class="metric-value" id="spec-leverage">Unresolved Public Issues</span>
+            </div>
+
+            <div class="metric-row">
+                <span class="metric-label">Primary Gatekeeper</span>
+                <span class="metric-value" id="spec-gatekeeper">Automated ATS Screeners</span>
+            </div>
+        </div>
+
+        <!-- Right: Action Steps Stack -->
+        <div class="execution-panel" id="execution-stack">
+            <!-- Dynamic data output hooks -->
+        </div>
+
+    </div>
+
+    <div class="sys-log">
+        <span>STATUS: PIPELINES_DECRYPTED</span>
+        <span>SECURITY_LEVEL: UNRESTRICTED</span>
+    </div>
+</div>
+
+<script>
+    const database = {
+        tech: {
+            destination: "Engineering Teams & Core Dev Roles",
+            horizon: "60 - 90 Days",
+            leverage: "Open-Source Repository Fixes",
+            gatekeeper: "HR Screening Filters",
+            steps: [
+                {
+                    tag: "PHASE_01",
+                    title: "Isolate Active Technical Friction",
+                    desc: "Skip job boards entirely. Audit the public GitHub repositories of your target growth companies. Identify open, stagnant production bugs, undocumented bottlenecks, or poor test coverage areas in their codebases.",
+                    items: [
+                        "Scan repositories with 10-50 active contributors",
+                        "Isolate open tracking issues tagged as 'help wanted' or 'documentation gap'",
+                        "Fork the codebase and reproduce the error locally on your system"
+                    ]
+                },
+                {
+                    tag: "PHASE_02",
+                    title: "Deploy the Solution & Build the Case Study",
+                    desc: "Write clean, decoupled code to resolve the bottleneck. Document your complete execution path—why you made specific structural choices and how you verified your logic—using the Case Study Template.",
+                    items: [
+                        "Submit an immaculate Pull Request with comprehensive line documentation",
+                        "Package your fix into a standalone project overview on your personal domain",
+                        "Ensure your local configuration steps are clear enough for a junior developer to run"
+                    ]
+                },
+                {
+                    tag: "PHASE_03",
+                    title: "Direct Engineering Outreach Bypass",
+                    desc: "Locate the specific engineering lead or senior architect on LinkedIn or Twitter. Send a precise, link-driven note highlighting your ready-to-merge solution instead of requesting an informational interview.",
+                    items: [
+                        "Draft: 'Hey [Name], found a reproducible bottleneck in your [repo name] pipeline. Fixed it here [PR Link] along with build parameters [Case Study Link].'",
+                        "Let the technical asset execute the introduction directly to team recruiters"
+                    ]
+                }
+            ]
+        },
+        trades: {
+            destination: "Union & Commercial Field Apprenticeships",
+            horizon: "30 - 60 Days",
+            leverage: "Pre-Apprenticeship Certificates (MC3)",
+            gatekeeper: "Local JATC Ranking Lists",
+            steps: [
+                {
+                    tag: "PHASE_01",
+                    title: "Secure the Foundation Framework",
+                    desc: "Locate your region's local Joint Apprenticeship and Training Committee (JATC). Bypass commercial open-market labor contractors and secure your standardized Multi-Craft Core Curriculum (MC3) baseline credentials directly.",
+                    items: [
+                        "Complete OSHA-10 safety training documentation and basic layout math certifications",
+                        "Audit local training center schedules for upcoming entry evaluation openings"
+                    ]
+                },
+                {
+                    tag: "PHASE_02",
+                    title: "Assemble the Structural Performance Log",
+                    desc: "Compile your physical portfolio asset. Document your absolute safety compliance, mastery over blueprint variables, material processing handling, and physical geometric layouts using high-definition photos.",
+                    items: [
+                        "Photo-document blueprint schematics directly alongside your finished physical work loops",
+                        "Create a structural timeline log tracking your error rates dropping over hours logged"
+                    ]
+                },
+                {
+                    tag: "PHASE_03",
+                    title: "The JATC Panel Presentation",
+                    desc: "Walk into your JATC intake interview with physical, bound print editions of your Case Study log. Hand copies straight to the business agents sitting on the committee panel to verify your high structural aptitude instantly.",
+                    items: [
+                        "Use your documented performance history to secure a top-tier placement rank",
+                        "Bypass seasonal waiting lists by supplying proof of immediate, unguided field safety competence"
+                    ]
+                }
+            ]
+        },
+        academia: {
+            destination: "University Research Labs & Fellowships",
+            horizon: "90 - 120 Days",
+            leverage: "Literature Gap Analysis Briefs",
+            gatekeeper: "Admissions Review Panels",
+            steps: [
+                {
+                    tag: "PHASE_01",
+                    title: "Map the Principal Investigator's Domain",
+                    desc: "Target specific, well-funded university labs. Read the last 5 peer-reviewed papers published by the lead Principal Investigator (PI). Extract their core dataset limitations, noted research parameters, and future study recommendations.",
+                    items: [
+                        "Isolate the explicit 'future study directions' sections in their literature",
+                        "Evaluate their source raw data pipelines for optimization or clean-up openings"
+                    ]
+                },
+                {
+                    tag: "PHASE_02",
+                    title: "Publish a Replicated Method Brief",
+                    desc: "Build an independent data replication case study. Take their public datasets or experimental methodologies and re-run the parameters yourself, documenting the operational consistency or alternative analysis paths.",
+                    items: [
+                        "Draft a clean, professional 3-page methodology overview",
+                        "Build interactive data visual models showing clean, updated processing tracks"
+                    ]
+                },
+                {
+                    tag: "PHASE_03",
+                    title: "The Peer Review Pitch Deployment",
+                    desc: "Reach out straight to the PI. Share your methodology review brief directly. Offer clear, unpaid support to handle complex data parsing pipelines or system configurations for their next study phase.",
+                    items: [
+                        "Draft: 'Professor [Name], read your '25 publication on [Topic]. Replicated your methodology here [Link] and mapped out 2 alternative paths for your noted data constraints.'",
+                        "Leverage your documented data brief to earn research sponsorship or direct lab entry recommendations"
+                    ]
+                }
+            ]
+        }
+    };
+
+    function loadBlueprint(sector) {
+        // Toggle Active Tab Styling
+        document.querySelectorAll('.sector-card').forEach(card => card.classList.remove('active'));
+        document.getElementById(`btn-${sector}`).classList.add('active');
+
+        // Extract Data Fields
+        const content = database[sector];
+
+        // Hydrate Left Spec Columns
+        document.getElementById('spec-destination').innerText = content.destination;
+        document.getElementById('spec-horizon').innerText = content.horizon;
+        document.getElementById('spec-leverage').innerText = content.leverage;
+        document.getElementById('spec-gatekeeper').innerText = content.gatekeeper;
+
+        // Hydrate Right Process Nodes
+        const stack = document.getElementById('execution-stack');
+        stack.innerHTML = '';
+
+        content.steps.forEach(step => {
+            const node = document.createElement('div');
+            node.className = 'block-node';
+            
+            // Build sub-item listing string
+            let itemsHtml = '';
+            step.items.forEach(item => {
+                itemsHtml += `<li>${item}</li>`;
+            });
+
+            node.innerHTML = `
+                <span class="node-tag">${step.tag}</span>
+                <h3 class="node-title">${step.title}</h3>
+                <p class="node-body">${step.desc}</p>
+                <ul class="node-list">${itemsHtml}</ul>
+            `;
+            stack.appendChild(node);
+        });
+    }
+
+    // Initialize View with Route 1 (Tech)
+    document.addEventListener('DOMContentLoaded', () => {
+        loadBlueprint('tech');
+    });
+</script>
+
+</body>
+</html>
